@@ -42,7 +42,7 @@ def run_job(settings: Settings, dry_run: bool) -> None:
 
     if settings.canvas_ical_url:
         source_label = "Canvas iCal feed"
-        source_client = IcalClient(settings.canvas_ical_url)
+        source_client = IcalClient(settings.canvas_ical_url, settings.timezone)
     else:
         source_label = "Canvas API"
         source_client = CanvasClient(settings.canvas_base_url, settings.canvas_api_token)
