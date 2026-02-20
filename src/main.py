@@ -4,13 +4,13 @@ from datetime import datetime, timezone
 
 from src.canvas_client import CanvasClient
 from src.config import Settings
+from src.ical_client import IcalClient
 from src.reminder_service import run_once
 from src.sms_client import SmsClient
 from src.state_store import StateStore
 
 
 def run_job(settings: Settings, dry_run: bool) -> None:
-    canvas_client = CanvasClient(settings.canvas_base_url, settings.canvas_api_token)
     state = StateStore(settings.state_db_path)
 
     sms_client = SmsClient(
@@ -26,7 +26,15 @@ def run_job(settings: Settings, dry_run: bool) -> None:
             return "dry-run"
         return sms_client.send(to, message)
 
-    assignments = canvas_client.get_upcoming_assignments()
+    if settings.canvas_ical_url:
+        source_label = "Canvas iCal feed"
+        source_client = IcalClient(settings.canvas_ical_url)
+    else:
+        source_label = "Canvas API"
+        source_client = CanvasClient(settings.canvas_base_url, settings.canvas_api_token)
+
+    assignments = source_client.get_upcoming_assignments()
+    print(f"Fetched {len(assignments)} assignments from {source_label}.")
     result = run_once(
         assignments=assignments,
         state=state,
