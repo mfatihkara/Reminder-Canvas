@@ -134,6 +134,26 @@ Run every 30 minutes:
 */30 * * * * cd /Users/muammerkara/Desktop/ReminderProject && /Users/muammerkara/Desktop/ReminderProject/.venv/bin/python -m src.main --mode once >> reminder.log 2>&1
 ```
 
+## 6) Web dashboard
+
+Run a local website to trigger reminders manually:
+
+```bash
+cd /Users/muammerkara/Desktop/ReminderProject
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn src.web_app:app --reload --port 8000
+```
+
+Open:
+
+`http://127.0.0.1:8000`
+
+The dashboard includes:
+- `Refresh Status`
+- `Send Today's Deadlines Now`
+- `Run Reminder Check Once`
+
 ## Notes
 
 - Keep `.env` out of GitHub (already ignored in `.gitignore`).

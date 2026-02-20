@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Canvas Reminder Dashboard</title>
+  <style>
+    :root {
+      --bg: #f7f4ea;
+      --panel: #fffdfa;
+      --ink: #1e1f22;
+      --muted: #62666d;
+      --accent: #0e6b52;
+      --accent-2: #123d57;
+      --line: #e4dcc9;
+    }
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      background: radial-gradient(1000px 500px at 10% -10%, #d9f0e2, transparent), var(--bg);
+      color: var(--ink);
+    }
+    .wrap {
+      max-width: 860px;
+      margin: 32px auto;
+      padding: 0 16px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      letter-spacing: -0.02em;
+    }
+    .meta {
+      color: var(--muted);
+      margin: 0 0 18px;
+      font-size: 14px;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #fff;
+      background: var(--accent);
+    }
+    button.alt {
+      background: var(--accent-2);
+    }
+    .log {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, monospace;
+      font-size: 13px;
+      line-height: 1.4;
+      background: #f4f6f8;
+      border: 1px solid #dbe3ea;
+      border-radius: 10px;
+      padding: 12px;
+      min-height: 60px;
+    }
+    ul {
+      margin-top: 10px;
+      padding-left: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Canvas Reminder Dashboard</h1>
+      <p class="meta">Mode: {{ notifier_mode }} | Target: {{ target }} | Timezone: {{ timezone }}</p>
+
+      <div class="row">
+        <button id="refresh">Refresh Status</button>
+        <button id="sendToday" class="alt">Send Today's Deadlines Now</button>
+        <button id="runOnce" class="alt">Run Reminder Check Once</button>
+      </div>
+
+      <div id="summary" class="log">Loading status...</div>
+      <ul id="dueToday"></ul>
+    </div>
+  </div>
+
+  <script>
+    const summary = document.getElementById("summary");
+    const dueToday = document.getElementById("dueToday");
+
+    async function refreshStatus() {
+      summary.textContent = "Loading status...";
+      dueToday.innerHTML = "";
+      const res = await fetch("/api/status");
+      const data = await res.json();
+      summary.textContent = `Source: ${data.source}\nTotal assignments: ${data.total_assignments}\nDue today: ${data.due_today_count}`;
+      data.due_today.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = `${item.course}: ${item.name} @ ${item.due_local}`;
+        dueToday.appendChild(li);
+      });
+    }
+
+    async function postAction(path) {
+      summary.textContent = "Running...";
+      const res = await fetch(path, { method: "POST" });
+      const data = await res.json();
+      summary.textContent = JSON.stringify(data, null, 2);
+    }
+
+    document.getElementById("refresh").addEventListener("click", refreshStatus);
+    document.getElementById("sendToday").addEventListener("click", () => postAction("/api/send-today-now"));
+    document.getElementById("runOnce").addEventListener("click", () => postAction("/api/run-once"));
+
+    refreshStatus();
+  </script>
+</body>
+</html>
