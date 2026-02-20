@@ -1,6 +1,6 @@
 # Canvas Deadline Text Reminder (JHU)
 
-This project pulls your upcoming Canvas assignments and sends SMS reminders.
+This project pulls your upcoming Canvas assignments and sends reminders.
 
 ## What it does
 
@@ -10,6 +10,9 @@ This project pulls your upcoming Canvas assignments and sends SMS reminders.
 - Sends:
   - a daily digest at 8:00 AM local time
   - a 24-hour reminder before each assignment is due
+- Delivery modes:
+  - Email-to-text gateway (free, recommended)
+  - Twilio SMS (paid optional fallback)
 - Deduplicates reminders with a local SQLite state file (`state.db`).
 
 ## 1) Create GitHub repo
@@ -54,7 +57,26 @@ Keep this URL secret. Anyone with it can read your assignment calendar.
 
 Use `CANVAS_BASE_URL=https://jhu.instructure.com`.
 
-### Twilio
+### Free SMS via Email-to-Text Gateway (recommended)
+
+1. Choose your carrier gateway address for `NOTIFY_TARGET`:
+   - AT&T: `number@txt.att.net`
+   - Verizon: `number@vtext.com`
+   - T-Mobile: `number@tmomail.net`
+2. Use an SMTP email account to send the messages (Gmail is easiest):
+   - `SMTP_HOST=smtp.gmail.com`
+   - `SMTP_PORT=587`
+   - `SMTP_USERNAME=your_email@gmail.com`
+   - `SMTP_FROM_EMAIL=your_email@gmail.com`
+3. Create a Gmail App Password for `SMTP_PASSWORD`:
+   - Google Account -> Security -> 2-Step Verification (must be on)
+   - Security -> App passwords -> create one for Mail
+   - Put that generated password in `.env`
+4. Set:
+   - `NOTIFIER_MODE=email_gateway`
+   - `NOTIFY_TARGET=<your carrier gateway email>`
+
+### Twilio (optional fallback)
 
 1. Create/login at [https://www.twilio.com](https://www.twilio.com)
 2. Buy/setup an SMS-capable Twilio number
@@ -62,7 +84,9 @@ Use `CANVAS_BASE_URL=https://jhu.instructure.com`.
    - `TWILIO_ACCOUNT_SID`
    - `TWILIO_AUTH_TOKEN`
    - `TWILIO_FROM_NUMBER`
-4. Set your own phone number in `TO_NUMBER`
+4. Set:
+   - `NOTIFIER_MODE=twilio`
+   - `NOTIFY_TARGET=+1...`
 
 ## 3) Configure environment
 
@@ -70,7 +94,11 @@ Use `CANVAS_BASE_URL=https://jhu.instructure.com`.
 cp .env.example .env
 ```
 
-Edit `.env` and fill Twilio values plus one Canvas source:
+Edit `.env` and fill one notification mode plus one Canvas source:
+- `NOTIFIER_MODE=email_gateway` with SMTP + gateway address (recommended), or
+- `NOTIFIER_MODE=twilio` with Twilio credentials.
+
+For Canvas source use one of:
 - `CANVAS_ICAL_URL` (recommended), or
 - both `CANVAS_BASE_URL` and `CANVAS_API_TOKEN`.
 
@@ -108,5 +136,5 @@ Run every 30 minutes:
 ## Notes
 
 - Keep `.env` out of GitHub (already ignored in `.gitignore`).
-- Canvas and Twilio APIs can rate-limit; this MVP is lightweight and polling-based.
+- Canvas APIs and carrier gateways can rate-limit; this MVP is lightweight and polling-based.
 - If you want, next step is deploying to Railway/Render so reminders run even when your laptop is off.

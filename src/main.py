@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 from src.canvas_client import CanvasClient
 from src.config import Settings
+from src.email_client import EmailClient
 from src.ical_client import IcalClient
 from src.reminder_service import run_once
 from src.sms_client import SmsClient
@@ -13,18 +14,31 @@ from src.state_store import StateStore
 def run_job(settings: Settings, dry_run: bool) -> None:
     state = StateStore(settings.state_db_path)
 
-    sms_client = SmsClient(
-        settings.twilio_account_sid,
-        settings.twilio_auth_token,
-        settings.twilio_from_number,
-    )
+    if settings.notifier_mode == "email_gateway":
+        email_client = EmailClient(
+            smtp_host=settings.smtp_host,
+            smtp_port=settings.smtp_port,
+            smtp_username=settings.smtp_username,
+            smtp_password=settings.smtp_password,
+            from_email=settings.smtp_from_email,
+        )
+        notifier_label = "email gateway"
+    else:
+        sms_client = SmsClient(
+            settings.twilio_account_sid,
+            settings.twilio_auth_token,
+            settings.twilio_from_number,
+        )
+        notifier_label = "twilio"
 
-    def send_sms(to: str, message: str) -> str:
+    def send_notification(target: str, message: str) -> str:
         if dry_run:
-            print(f"[DRY RUN] Would send to {to}:")
+            print(f"[DRY RUN] Would send via {notifier_label} to {target}:")
             print(message)
             return "dry-run"
-        return sms_client.send(to, message)
+        if settings.notifier_mode == "email_gateway":
+            return email_client.send(target, message)
+        return sms_client.send(target, message)
 
     if settings.canvas_ical_url:
         source_label = "Canvas iCal feed"
@@ -38,8 +52,8 @@ def run_job(settings: Settings, dry_run: bool) -> None:
     result = run_once(
         assignments=assignments,
         state=state,
-        send_sms=send_sms,
-        to_number=settings.to_number,
+        send_sms=send_notification,
+        to_number=settings.notify_target,
         timezone_name=settings.timezone,
         remind_days_ahead=settings.remind_days_ahead,
         now_utc=datetime.now(timezone.utc),
