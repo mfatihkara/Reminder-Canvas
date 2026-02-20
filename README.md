@@ -8,8 +8,9 @@ This project pulls your upcoming Canvas assignments and sends reminders.
   - Canvas Calendar Feed (recommended)
   - Canvas API (optional fallback)
 - Sends:
-  - a daily digest at 8:00 AM local time
-  - a 24-hour reminder before each assignment is due
+  - a reminder about 3 days before due
+  - a reminder when the assignment is due today
+  - a reminder about 3 hours before due
 - Delivery modes:
   - Email-to-text gateway (free, recommended)
   - Twilio SMS (paid optional fallback)
