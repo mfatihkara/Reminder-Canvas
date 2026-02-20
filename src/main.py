@@ -33,13 +33,21 @@ def _build_sender(settings: Settings, dry_run: bool) -> Tuple[Callable[[str, str
         notifier_label = "twilio"
 
     def send_notification(target: str, message: str) -> str:
+        targets = [t.strip() for t in target.split(",") if t.strip()]
+        if not targets:
+            raise ValueError("No notification target configured")
         if dry_run:
-            print(f"[DRY RUN] Would send via {notifier_label} to {target}:")
-            print(message)
+            for t in targets:
+                print(f"[DRY RUN] Would send via {notifier_label} to {t}:")
+                print(message)
             return "dry-run"
-        if settings.notifier_mode == "email_gateway":
-            return email_client.send(target, message)
-        return sms_client.send(target, message)
+        message_ids = []
+        for t in targets:
+            if settings.notifier_mode == "email_gateway":
+                message_ids.append(email_client.send(t, message))
+            else:
+                message_ids.append(sms_client.send(t, message))
+        return ",".join(message_ids)
 
     return send_notification, notifier_label
 
@@ -69,17 +77,22 @@ def send_today_now(settings: Settings, dry_run: bool) -> None:
     due_today = [a for a in assignments if now_utc <= a.due_at <= end_of_day_utc]
     due_today = sorted(due_today, key=lambda a: a.due_at)
 
-    if due_today:
-        lines = [f"Today's Canvas deadlines ({now_local.strftime('%a %b %d')}):"]
-        for assignment in due_today[:8]:
-            due_text = assignment.due_at.astimezone(tz).strftime("%I:%M %p")
-            lines.append(f"- {assignment.course_name}: {assignment.name} @ {due_text}")
-        message = "\n".join(lines)
-    else:
-        message = "No homework due today based on Canvas."
+    if not due_today:
+        sid = send_notification(settings.notify_target, "No homework due today based on Canvas.")
+        print(f"Sent immediate today summary: {sid}")
+        return
 
-    sid = send_notification(settings.notify_target, message)
-    print(f"Sent immediate today summary: {sid}")
+    stamp = now_local.strftime("%H:%M")
+    sent = 0
+    for assignment in due_today[:8]:
+        due_text = assignment.due_at.astimezone(tz).strftime("%I:%M %p")
+        name = assignment.name[:80]
+        course = assignment.course_name[:24]
+        message = f"Due today {due_text}: {name} ({course}) [{stamp}]"
+        sid = send_notification(settings.notify_target, message)
+        print(f"Sent immediate today item: {sid}")
+        sent += 1
+    print(f"Sent {sent} due-today reminders.")
 
 
 def run_job(settings: Settings, dry_run: bool) -> None:

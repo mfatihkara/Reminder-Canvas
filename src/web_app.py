@@ -39,11 +39,18 @@ def _build_sender(settings: Settings, dry_run: bool) -> Tuple[Callable[[str, str
         notifier_label = "twilio"
 
     def send_notification(target: str, message: str) -> str:
+        targets = [t.strip() for t in target.split(",") if t.strip()]
+        if not targets:
+            raise ValueError("No notification target configured")
         if dry_run:
             return "dry-run"
-        if settings.notifier_mode == "email_gateway":
-            return email_client.send(target, message)
-        return sms_client.send(target, message)
+        message_ids = []
+        for t in targets:
+            if settings.notifier_mode == "email_gateway":
+                message_ids.append(email_client.send(t, message))
+            else:
+                message_ids.append(sms_client.send(t, message))
+        return ",".join(message_ids)
 
     return send_notification, notifier_label
 
@@ -117,23 +124,38 @@ def send_today_now() -> JSONResponse:
     tz = ZoneInfo(settings.timezone)
     now_local = datetime.now(timezone.utc).astimezone(tz)
 
-    if due_today:
-        lines = [f"Today's Canvas deadlines ({now_local.strftime('%a %b %d')}):"]
-        for assignment in due_today[:8]:
-            due_text = assignment.due_at.astimezone(tz).strftime("%I:%M %p")
-            lines.append(f"- {assignment.course_name}: {assignment.name} @ {due_text}")
-        message = "\n".join(lines)
-    else:
-        message = "No homework due today based on Canvas."
+    if not due_today:
+        sid = send_notification(settings.notify_target, "No homework due today based on Canvas.")
+        return JSONResponse(
+            {
+                "ok": True,
+                "delivery": notifier_label,
+                "target": settings.notify_target,
+                "message_id": sid,
+                "sent_count": 1,
+                "preview": "No homework due today based on Canvas.",
+            }
+        )
 
-    sid = send_notification(settings.notify_target, message)
+    stamp = now_local.strftime("%H:%M")
+    message_ids = []
+    previews = []
+    for assignment in due_today[:8]:
+        due_text = assignment.due_at.astimezone(tz).strftime("%I:%M %p")
+        name = assignment.name[:80]
+        course = assignment.course_name[:24]
+        message = f"Due today {due_text}: {name} ({course}) [{stamp}]"
+        previews.append(message)
+        sid = send_notification(settings.notify_target, message)
+        message_ids.append(sid)
     return JSONResponse(
         {
             "ok": True,
             "delivery": notifier_label,
             "target": settings.notify_target,
-            "message_id": sid,
-            "preview": message,
+            "message_id": ",".join(message_ids),
+            "sent_count": len(previews),
+            "preview": "\n".join(previews),
         }
     )
 
