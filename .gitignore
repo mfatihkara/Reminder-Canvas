@@ -8,3 +8,5 @@ venv/
 .venv/
 reminder.log
 reminder.err.log
+reminder.log
+reminder.err.log
