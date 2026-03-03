@@ -6,29 +6,29 @@
 <title>CanvasAlert – HW Reminders</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', sans-serif; background: #f9f9f9; color: #222; min-height: 100vh; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f5f8fc; color: #222; min-height: 100vh; }
 
   nav {
     display: flex; justify-content: space-between; align-items: center;
     padding: 20px 48px; background: #fff; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10;
   }
   .logo { font-size: 1.3rem; font-weight: 700; }
-  .logo span { color: #e66; }
+  .logo span { color: #002D72; }
   nav a { text-decoration: none; color: #555; font-size: 0.9rem; margin-left: 24px; }
-  nav a:hover { color: #222; }
+  nav a:hover { color: #002D72; }
 
   .hero { max-width: 620px; margin: 90px auto 60px; text-align: center; padding: 0 24px; }
   .hero h1 { font-size: 2.5rem; font-weight: 700; line-height: 1.2; margin-bottom: 16px; }
-  .hero h1 span { color: #e66; }
+  .hero h1 span { color: #002D72; }
   .hero p { font-size: 1.05rem; color: #666; line-height: 1.7; margin-bottom: 32px; }
-  .badge { display: inline-block; background: #fff3f3; color: #e66; font-size: 0.8rem; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #fdd; }
+  .badge { display: inline-block; background: #fff8e6; color: #7a5600; font-size: 0.8rem; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #f2d483; }
 
   .section { max-width: 780px; margin: 0 auto 70px; padding: 0 24px; }
   .section h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 28px; text-align: center; }
 
   .steps { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
   .step { background: #fff; border: 1px solid #eee; border-radius: 14px; padding: 24px 20px; flex: 1; min-width: 190px; max-width: 230px; }
-  .step .num { width: 32px; height: 32px; background: #e66; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; margin-bottom: 14px; }
+  .step .num { width: 32px; height: 32px; background: #002D72; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; margin-bottom: 14px; }
   .step h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 6px; }
   .step p { font-size: 0.82rem; color: #777; line-height: 1.6; }
 
@@ -41,15 +41,15 @@
     width: 100%; padding: 10px 13px; border: 1px solid #ddd; border-radius: 8px;
     font-size: 0.92rem; background: #fafafa; outline: none; transition: border 0.2s;
   }
-  input:focus, select:focus { border-color: #e66; background: #fff; }
+  input:focus, select:focus { border-color: #002D72; background: #fff; }
   .hint { font-size: 0.75rem; color: #aaa; margin-top: 4px; }
-  .hint a { color: #e66; text-decoration: none; }
+  .hint a { color: #002D72; text-decoration: none; }
 
   .generate-btn {
-    margin-top: 24px; padding: 11px 22px; background: #e66; color: #fff; border: none;
+    margin-top: 24px; padding: 11px 22px; background: #002D72; color: #fff; border: none;
     border-radius: 8px; font-size: 0.92rem; font-weight: 600; cursor: pointer; transition: background 0.2s; width: 100%;
   }
-  .generate-btn:hover { background: #d44; }
+  .generate-btn:hover { background: #001f4d; }
 
   .env-block { background: #1e1e1e; border-radius: 10px; padding: 20px; margin-top: 8px; position: relative; }
   .env-block pre { color: #ccc; font-size: 0.8rem; line-height: 1.9; white-space: pre-wrap; word-break: break-all; }
@@ -68,7 +68,7 @@
 
   .timeline { display: flex; flex-direction: column; gap: 20px; max-width: 400px; margin: 0 auto; }
   .tl-item { display: flex; align-items: flex-start; gap: 16px; }
-  .tl-dot { width: 12px; height: 12px; background: #e66; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+  .tl-dot { width: 12px; height: 12px; background: #F2A900; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
   .tl-info h4 { font-size: 0.9rem; font-weight: 600; }
   .tl-info p { font-size: 0.8rem; color: #888; margin-top: 2px; }
 
@@ -90,7 +90,7 @@
   <div class="badge">📲 Text Reminders via Email Gateway</div>
   <h1>Never miss a <span>due date</span> again.</h1>
   <p>CanvasAlert reads your Canvas iCal feed and texts you automatically — 3 days before, the day of, and 3 hours before every deadline.</p>
-  <a href="#setup" style="display:inline-block;background:#e66;color:#fff;padding:12px 28px;border-radius:8px;font-weight:600;text-decoration:none;font-size:0.95rem;">Get Started →</a>
+  <a href="#setup" style="display:inline-block;background:#002D72;color:#fff;padding:12px 28px;border-radius:8px;font-weight:600;text-decoration:none;font-size:0.95rem;">Get Started →</a>
 </div>
 
 <!-- HOW IT WORKS -->
