@@ -134,25 +134,22 @@ Run every 30 minutes:
 */30 * * * * cd /Users/muammerkara/Desktop/ReminderProject && /Users/muammerkara/Desktop/ReminderProject/.venv/bin/python -m src.main --mode once >> reminder.log 2>&1
 ```
 
-## 6) Web dashboard
+## 6) Static Website
 
-Run a local website to trigger reminders manually:
+Your website file is included at:
+
+`web/canvas-reminder.html`
+
+Open it directly in a browser, or run a simple local server:
 
 ```bash
 cd /Users/muammerkara/Desktop/ReminderProject
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn src.web_app:app --reload --port 8000
+python3 -m http.server 8080
 ```
 
-Open:
+Then visit:
 
-`http://127.0.0.1:8000`
-
-The dashboard includes:
-- `Refresh Status`
-- `Send Today's Deadlines Now`
-- `Run Reminder Check Once`
+`http://127.0.0.1:8080/web/canvas-reminder.html`
 
 ## Notes
 
